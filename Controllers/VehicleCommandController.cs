@@ -85,21 +85,25 @@ namespace VehicleMangement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAll()
         {
             var vehicles = await _mediator.Send(new GetAllVehiclesQuery());
 
-            return Ok(vehicles);
+            return Ok(new ApiResponse
+            {
+                success = true,
+                message = "Data Retrived Sucessfully",
+                data = vehicles
+            });
         }
 
         [HttpGet("{vehicleId}")]
         public async Task<IActionResult> GetById(Guid vehicleId)
         {
-            var vehicle = await _mediator.Send(
-                new GetVehicleByIdQuery
-                {
-                    VehicleId = vehicleId
-                });
+            var vehicle = await _mediator.Send(new GetVehicleByIdQuery
+            {
+                VehicleId = vehicleId
+            });
 
             if (vehicle == null)
                 return NotFound("Vehicle not found");

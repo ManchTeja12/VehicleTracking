@@ -6,6 +6,7 @@ using System.Text;
 using VehicleMangement.Data;
 using VehicleMangement.EventStore;
 using VehicleMangement.Handlers;
+using VehicleMangement.Services;
 
 namespace VehicleMangement
 {
@@ -16,12 +17,19 @@ namespace VehicleMangement
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<Data.UserDbContext>(options =>options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             builder.Services.AddMediatR(cfg =>cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
             builder.Services.AddDbContext<ReadDbContext>(options =>options.UseNpgsql(builder.Configuration.GetConnectionString("ReadConnection")));
 
             // EventRepository
             builder.Services.AddScoped<EventRepository>();
+            builder.Services.AddScoped<CreateVehicleHandler>();
+            builder.Services.AddScoped<UpdateVehicleHandler>();
+            builder.Services.AddSingleton<KafkaProducer>();
+           // builder.Services.AddHostedService<KafkaConsumer>();
+
+            builder.Services.AddScoped<VehicleProjectionHandler>();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
      {
          options.TokenValidationParameters = new TokenValidationParameters
@@ -41,7 +49,7 @@ namespace VehicleMangement
             // Add services to the container.
 
             builder.Services.AddControllers();
-            builder.Services.AddScoped<VehicleProjectionHandler>();
+           
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>

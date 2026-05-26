@@ -1,4 +1,6 @@
-﻿namespace VehicleMangement.Events
+﻿using Microsoft.VisualBasic;
+
+namespace VehicleMangement.Events
 {
     public class VehicleCreatedEvent
     {
@@ -11,6 +13,8 @@
         public string Source { get; set; } = string.Empty;
         public string Destination { get; set; }= string.Empty;
         public string CreatedBy { get; set; } = string.Empty;
-
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
+
 }
+

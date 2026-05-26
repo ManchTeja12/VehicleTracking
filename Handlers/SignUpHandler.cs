@@ -38,12 +38,13 @@ namespace VehicleMangement.Handlers
             };
             _context.Users.Add(newuser);
             await _context.SaveChangesAsync();
-            await _eventRepository.SaveAsync(newuser.UserId, new UserCreatedEvent
+            var evt=new UserCreatedEvent
             {
                 UserId = newuser.UserId,
                 Name = newuser.Name,
                 Email = newuser.Email
-            });
+            };
+            await _eventRepository.SaveAsync(newuser.UserId, evt);
             return "User Created Successfully";
         }
       

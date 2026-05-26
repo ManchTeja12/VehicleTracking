@@ -1,4 +1,5 @@
-﻿using VehicleMangement.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using VehicleMangement.Data;
 using VehicleMangement.Enums;
 using VehicleMangement.Events;
 using VehicleMangement.Models;
@@ -27,13 +28,39 @@ namespace VehicleMangement.Handlers
                 Source = e.Source,
                 Destination = e.Destination,
                 CreatedBy = e.CreatedBy,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = e.CreatedAt
             };
 
             _readcontext.Vehicles.Add(vehicle);
 
             await _readcontext.SaveChangesAsync();
         }
+
+        public async Task Handle(VehicleUpdateEvent e)
+        {
+            var vehicle = await _readcontext.Vehicles.FirstOrDefaultAsync(x => x.VehicleId == e.VehicleId);
+
+            if (vehicle == null)
+                return;
+
+            vehicle.VehicleNumber = e.VehicleNumber;
+
+            vehicle.LoadMaterial = e.LoadMaterial;
+
+            vehicle.DriverName = e.DriverName;
+            if (e.Type.HasValue)
+                vehicle.Type = e.Type.Value;
+            vehicle.Source = e.Source;
+
+            vehicle.Destination = e.Destination;
+
+            // overwrite CreatedAt with latest update time
+            vehicle.CreatedAt = e.UpdatedAt;
+
+            await _readcontext.SaveChangesAsync();
+        }
+
+
     }
 
 }

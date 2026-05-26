@@ -6,19 +6,20 @@ using VehicleMangement.Queries;
 
 namespace VehicleMangement.Handlers
 {
+   // VehicleProjectionHandler saves into ReadDb
+    //GetAllVehiclesHandler reads from ReadDb
     public class GetAllVehiclesHandler : IRequestHandler<GetAllVehiclesQuery, List<VehicleDetails>>
     {
         private readonly ReadDbContext _context;
 
-        public GetAllVehiclesHandler(
-            ReadDbContext context)
+        public GetAllVehiclesHandler(ReadDbContext context)
         {
             _context = context;
         }
 
         public async Task<List<VehicleDetails>>Handle(GetAllVehiclesQuery request,CancellationToken ct)
         {
-            return await _context.Vehicles.AsNoTracking() .ToListAsync(ct);
+            return await _context.Vehicles.AsNoTracking().ToListAsync(ct);
         }
     
     }

@@ -5,58 +5,69 @@ using VehicleMangement.Data;
 using VehicleMangement.Events;
 using VehicleMangement.EventStore;
 using VehicleMangement.Models;
+using VehicleMangement.Services;
 
 namespace VehicleMangement.Handlers
 {
     public class UpdateVehicleHandler : IRequestHandler<UpdateVehicleCommand, VehicleDetails>
     {
-        private readonly UserDbContext _context;
         private readonly ReadDbContext _readcontext;
         private readonly EventRepository _repository;
-        public UpdateVehicleHandler(UserDbContext context,ReadDbContext readcontext, EventRepository repository)
+        public UpdateVehicleHandler(ReadDbContext readcontext, EventRepository repository)
         {
-            _context = context;
+
             _readcontext = readcontext;
             _repository = repository;
         }
-        public async Task<VehicleDetails> Handle(UpdateVehicleCommand command,CancellationToken ct)
+        public async Task<VehicleDetails> Handle(UpdateVehicleCommand command, CancellationToken ct)
         {
             var vehicle = await _readcontext.Vehicles.FirstOrDefaultAsync(x => x.VehicleId == command.VehicleId, ct);
-            if(vehicle==null)
+            if (vehicle == null)
             {
                 throw new KeyNotFoundException("Vehicle not Found");
             }
-            if (command.VehicleNumber != null)
-                vehicle.VehicleNumber = command.VehicleNumber;
-
-            if (command.Type != null)
-                vehicle.Type = command.Type.Value;
-
-            if (command.LoadMaterial != null)
-                vehicle.LoadMaterial = command.LoadMaterial;
-
-            if (command.DriverName != null)
-                vehicle.DriverName = command.DriverName;
-
-            if (command.Source != null)
-                vehicle.Source = command.Source;
-
-            if (command.Destination != null)
-                vehicle.Destination = command.Destination;
-
-            await _repository.SaveAsync(vehicle.VehicleId, new VehicleUpdateEvent
+            var evt = new VehicleUpdateEvent
             {
-                VehicleId = vehicle.VehicleId,
-                VehicleNumber = vehicle.VehicleNumber,
-                Type = vehicle.Type,
-                LoadMaterial = vehicle.LoadMaterial,
-                DriverName = vehicle.DriverName,
-                Source = vehicle.Source,
-                Destination = vehicle.Destination,
-                UpdatedAt = DateTime.UtcNow
-            });
-            return vehicle;
+                VehicleId = command.VehicleId,
 
+                VehicleNumber = command.VehicleNumber ?? vehicle.VehicleNumber,
+
+                Type = command.Type ?? vehicle.Type,
+
+                LoadMaterial = command.LoadMaterial ?? vehicle.LoadMaterial,
+
+                DriverName = command.DriverName ?? vehicle.DriverName,
+
+                Source = command.Source ?? vehicle.Source,
+
+                Destination = command.Destination ?? vehicle.Destination,
+
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _repository.SaveAsync(vehicle.VehicleId, evt);
+            //await _projection.Handle(evt);
+
+            //await _producer.PublishAsync(KafkaTopic.VehicleEvents, new
+            //{
+            //    EventType = nameof(VehicleUpdateEvent),
+            //    Data = evt
+            //});
+
+            return new VehicleDetails
+            {
+                VehicleId = evt.VehicleId,
+                VehicleNumber = evt.VehicleNumber,
+                Type = evt.Type.Value,
+                LoadMaterial = evt.LoadMaterial,
+                DriverName = evt.DriverName,
+                Source = evt.Source,
+                Destination = evt.Destination,
+                ShipmentNumber = vehicle.ShipmentNumber,
+                CreatedBy = vehicle.CreatedBy,
+                CreatedAt = vehicle.CreatedAt
+            };
         }
+
     }
 }
