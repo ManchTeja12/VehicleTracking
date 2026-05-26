@@ -16,16 +16,10 @@ namespace VehicleMangement.Controllers
             _mediator = mediator;
         }
         [HttpPost("SignUp")]
-        public async Task<IActionResult> Signup(SignUpDto dto)//dto handles input data and validation from http request
+        public async Task<IActionResult> Signup(SignUpCommand command)
         {
             try
             {
-                var command = new SignUpCommand //command is used to send data to the handler
-                {
-                    Name = dto.Name,
-                    Email = dto.Email,
-                    Password = dto.Password
-                };
                 var result = await _mediator.Send(command);
                 return Ok(new ApiResponse
                 {
@@ -56,15 +50,10 @@ namespace VehicleMangement.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public async Task<IActionResult> Login(LoginQuery query)
         {
             try
             {
-                var query = new LoginQuery
-                {
-                    Email = dto.Email,
-                    Password = dto.Password
-                };
                 var result = await _mediator.Send(query);
                 return Ok(new ApiResponse
                 {

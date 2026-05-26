@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.VisualBasic;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata;
 using VehicleMangement.Enums;
 
@@ -12,7 +13,6 @@ namespace VehicleMangement.Models
         public string VehicleNumber { get; set; }=string.Empty;
         [Required]
         public VehicleType Type { get; set; }
-        [Required]
         public string ShipmentNumber { get; set; }=string.Empty;
         [Required]
         public string LoadMaterial { get; set; }=string.Empty;
@@ -22,6 +22,8 @@ namespace VehicleMangement.Models
         public string Source { get; set; }=string.Empty;
         [Required]
         public string Destination { get; set; } =string.Empty;
+        [Required]
         public string CreatedBy { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

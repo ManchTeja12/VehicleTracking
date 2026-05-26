@@ -34,7 +34,7 @@ namespace VehicleMangement.Handlers
             var creds=new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
             var claims=new[]
             {
-                new Claim("UserId",result.UserId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier,result.UserId.ToString()),
                 new Claim("UserName",result.Name),
                 new Claim("UserEmail",result.Email),
                new Claim(JwtRegisteredClaimNames.Iat,DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),ClaimValueTypes.Integer64)

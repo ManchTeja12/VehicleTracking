@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace VehicleMangement.Migrations
+namespace VehicleMangement.Migrations.ReadDb
 {
     /// <inheritdoc />
-    public partial class AddVehiclesTable : Migration
+    public partial class InitialRead : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,7 +22,9 @@ namespace VehicleMangement.Migrations
                     LoadMaterial = table.Column<string>(type: "text", nullable: false),
                     DriverName = table.Column<string>(type: "text", nullable: false),
                     Source = table.Column<string>(type: "text", nullable: false),
-                    Destination = table.Column<string>(type: "text", nullable: false)
+                    Destination = table.Column<string>(type: "text", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

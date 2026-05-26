@@ -76,44 +76,6 @@ namespace VehicleMangement.Migrations
 
                     b.ToTable("Users");
                 });
-
-            modelBuilder.Entity("VehicleMangement.Models.VehicleDetails", b =>
-                {
-                    b.Property<Guid>("VehicleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Destination")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DriverName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LoadMaterial")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ShipmentNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("VehicleNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("VehicleId");
-
-                    b.ToTable("Vehicles");
-                });
 #pragma warning restore 612, 618
         }
     }

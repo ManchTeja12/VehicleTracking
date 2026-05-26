@@ -9,6 +9,5 @@ namespace VehicleMangement.Data
         }
         public DbSet<User> Users { get; set; }
         public DbSet<EventEntity> Events { get; set; }
-        public DbSet<VehicleDetails> Vehicles { get; set; }
     }
 }
