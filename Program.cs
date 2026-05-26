@@ -6,6 +6,7 @@ using System.Text;
 using VehicleMangement.Data;
 using VehicleMangement.EventStore;
 using VehicleMangement.Handlers;
+using VehicleMangement.Hubs;
 using VehicleMangement.Services;
 
 namespace VehicleMangement
@@ -49,7 +50,9 @@ namespace VehicleMangement
             // Add services to the container.
 
             builder.Services.AddControllers();
-           
+            builder.Services.AddSignalR();
+            builder.Services.AddScoped<IRouteService,RouteService>();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -105,6 +108,7 @@ namespace VehicleMangement
 
 
             app.MapControllers();
+            app.MapHub<RouteHub>("/routeHub");
 
             app.Run();
         }
