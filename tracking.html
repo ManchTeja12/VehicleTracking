@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Vehicle Tracking</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        #logs {
+            border: 1px solid black;
+            height: 400px;
+            overflow: auto;
+            padding: 10px;
+        }
+
+        input, button {
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Realtime Vehicle Tracking</h2>
+
+    Vehicle Id:
+
+    <input id="vehicleId"
+           value="9d46cab2-6ff3-4297-8f22-e2db70bf5eb7"
+           style="width:420px" />
+
+    <br>
+
+    <button onclick="connect()">
+        Connect
+    </button>
+
+    <button onclick="joinVehicle()">
+        Join Vehicle
+    </button>
+
+    <button onclick="startTrip()">
+        Start Trip
+    </button>
+
+    <div id="logs"></div>
+
+    <script>
+
+let connection;
+
+function log(msg)
+{
+   document.getElementById("logs")
+   .innerHTML += "<div>"+msg+"</div>";
+}
+
+
+async function connect()
+{
+connection =
+new signalR.HubConnectionBuilder()
+
+.withUrl(
+"http://localhost:5000/routeHub"
+)
+
+.build();
+
+
+
+connection.on(
+"Joined",
+(vehicleId)=>
+{
+log(
+"Joined : "
++vehicleId
+);
+});
+
+
+connection.on(
+"RouteStart",
+(count)=>
+{
+log(
+"Route Started : "
++count
++" coordinates"
+);
+});
+
+
+connection.on(
+"RouteCoordinate",
+(data)=>
+{
+log(
+"Latitude : "
++data.lat+
+" Longitude : "
++data.lng
+);
+});
+
+
+connection.on(
+"RouteEnd",
+()=>
+{
+log(
+"Trip Completed"
+);
+});
+
+
+connection.on(
+"Error",
+(message)=>
+{
+log(
+"ERROR : "
++message
+);
+});
+
+
+
+try
+{
+await connection.start();
+
+log(
+"SignalR Connected"
+);
+}
+catch(err)
+{
+log(err);
+}
+
+}
+
+
+
+async function joinVehicle()
+{
+let vehicleId=
+document.getElementById(
+"vehicleId"
+).value;
+
+await connection.invoke(
+"JoinVehicle",
+vehicleId
+);
+
+}
+
+
+
+async function startTrip()
+{
+let vehicleId=
+document.getElementById(
+"vehicleId"
+).value;
+
+await connection.invoke(
+"StartTrip",
+vehicleId
+);
+
+}
+
+    </script>
+
+</body>
+</html>

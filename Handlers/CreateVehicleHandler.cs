@@ -14,13 +14,13 @@ namespace VehicleMangement.Handlers
     {
         private readonly ReadDbContext _readcontext;
         private readonly EventRepository _repository;
-        //private readonly VehicleProjectionHandler _projection;
+        private readonly VehicleProjectionHandler _projection;
         public CreateVehicleHandler(EventRepository repository,ReadDbContext readcontext,VehicleProjectionHandler projection)
         {
            
             _readcontext= readcontext;
             _repository= repository;
-            //_projection= projection;
+            _projection= projection;
         }
         public async Task<VehicleDetails> Handle(CreateVehicleCommand command,CancellationToken ct)
         {
@@ -36,22 +36,6 @@ namespace VehicleMangement.Handlers
             var vehicleId = Guid.NewGuid();
             var createdAt = DateTime.UtcNow;
 
-            var vehicleEvent = new VehicleCreatedEvent
-            {
-                VehicleId = vehicleId,
-                VehicleNumber = command.VehicleNumber,
-                ShipmentNumber = shipmentNumber,
-                VehicleType = command.Type.ToString(),
-                LoadMaterial = command.LoadMaterial,
-                DriverName = command.DriverName,
-                Source = command.Source,
-                Destination = command.Destination,
-                CreatedBy = command.CreatedBy,
-                CreatedAt = createdAt
-            };
-
-            await _repository.SaveAsync(vehicleId, vehicleEvent);
-
            
             var evt = new VehicleCreatedEvent
             {
@@ -64,11 +48,16 @@ namespace VehicleMangement.Handlers
                 Source = command.Source,
                 Destination = command.Destination,
                 CreatedBy = command.CreatedBy,
-                CreatedAt = createdAt
+                CreatedAt = createdAt,
+
+                SourceLat = command.SourceLat,
+                SourceLng = command.SourceLng,
+                DestLat = command.DestLat,
+                DestLng = command.DestLng
             };
 
             await _repository.SaveAsync(vehicleId,evt);
-            //await _projection.Handle(vehicleEvent);
+            await _projection.Handle(evt);
 
             // This is for kafka
 
@@ -89,7 +78,12 @@ namespace VehicleMangement.Handlers
                 Source = evt.Source,
                 Destination = evt.Destination,
                 CreatedBy = evt.CreatedBy,
-                CreatedAt = createdAt
+                CreatedAt = createdAt,
+
+                SourceLat = command.SourceLat,
+                SourceLng = command.SourceLng,
+                DestLat = command.DestLat,
+                DestLng = command.DestLng
             };
         }
             

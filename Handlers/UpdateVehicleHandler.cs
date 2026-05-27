@@ -13,11 +13,13 @@ namespace VehicleMangement.Handlers
     {
         private readonly ReadDbContext _readcontext;
         private readonly EventRepository _repository;
-        public UpdateVehicleHandler(ReadDbContext readcontext, EventRepository repository)
+        private readonly VehicleProjectionHandler _projection;
+        public UpdateVehicleHandler(ReadDbContext readcontext, EventRepository repository, VehicleProjectionHandler projection  )
         {
 
             _readcontext = readcontext;
             _repository = repository;
+            _projection = projection;
         }
         public async Task<VehicleDetails> Handle(UpdateVehicleCommand command, CancellationToken ct)
         {
@@ -46,7 +48,7 @@ namespace VehicleMangement.Handlers
             };
 
             await _repository.SaveAsync(vehicle.VehicleId, evt);
-            //await _projection.Handle(evt);
+            await _projection.Handle(evt);
 
             //await _producer.PublishAsync(KafkaTopic.VehicleEvents, new
             //{

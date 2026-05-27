@@ -28,7 +28,12 @@ namespace VehicleMangement.Handlers
                 Source = e.Source,
                 Destination = e.Destination,
                 CreatedBy = e.CreatedBy,
-                CreatedAt = e.CreatedAt
+                CreatedAt = e.CreatedAt,
+
+                 SourceLat = e.SourceLat,
+                SourceLng = e.SourceLng,
+                DestLat = e.DestLat,
+                DestLng = e.DestLng
             };
 
             _readcontext.Vehicles.Add(vehicle);

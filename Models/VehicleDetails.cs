@@ -23,6 +23,14 @@ namespace VehicleMangement.Models
         [Required]
         public string Destination { get; set; } =string.Empty;
         [Required]
+        public double SourceLat { get; set; }
+        [Required]
+        public double SourceLng { get; set; }
+        [Required]
+        public double DestLat { get; set; }
+        [Required]
+        public double DestLng { get; set; }
+        [Required]
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

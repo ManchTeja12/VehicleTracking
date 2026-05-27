@@ -1,8 +1,9 @@
-
+﻿
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 using VehicleMangement.Data;
 using VehicleMangement.EventStore;
 using VehicleMangement.Handlers;
@@ -32,7 +33,7 @@ namespace VehicleMangement
 
             builder.Services.AddScoped<VehicleProjectionHandler>();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-     {
+            {
          options.TokenValidationParameters = new TokenValidationParameters
          {
              ValidateIssuer = true,
@@ -49,9 +50,15 @@ namespace VehicleMangement
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
-            builder.Services.AddSignalR();
-            builder.Services.AddScoped<IRouteService,RouteService>();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+                {
+                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+               });
+            builder.Services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true; // ← add this for debugging
+            });
+            builder.Services.AddHttpClient<IRouteService,RouteService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -101,6 +108,7 @@ namespace VehicleMangement
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseRouting();
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();
 

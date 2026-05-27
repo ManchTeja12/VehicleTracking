@@ -2,11 +2,12 @@
 {
     public interface IRouteService
     {
-        Task<object> GetRoute(
+        Task<List<double[]>> GetRoute(
              double sourceLat,
-            double sourceLong,
+            double sourceLng,
             double destLat,
-            double destLong
+            double destLng
         );
     }
 }
+    
