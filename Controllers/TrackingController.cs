@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using VehicleMangement.Data;
 using VehicleMangement.Hubs;
+using VehicleMangement.Queries;
 
 namespace VehicleMangement.Controllers
 {
@@ -10,20 +10,22 @@ namespace VehicleMangement.Controllers
     [Route("api/tracking")]
     public class TrackingController: ControllerBase
     {
-        private readonly ReadDbContext _context;
+        private readonly IMediator _mediator;
         private readonly IHubContext<RouteHub> _hubContext;
-        private readonly HttpClient _httpClient;
 
-        public TrackingController(ReadDbContext context, IHubContext<RouteHub> hubContext, HttpClient httpClient)
+        public TrackingController(IMediator mediator, IHubContext<RouteHub> hubContext)
         {
-            _context = context;
+            _mediator = mediator;
             _hubContext = hubContext;
-           // _httpClient = httpClient;
         }
         [HttpPost("start/{vehicleId}")]
         public async Task<IActionResult> StartTracking(string vehicleId)
         {
-            var vehicle = await _context.Vehicles.FirstOrDefaultAsync(v =>v.VehicleId == Guid.Parse(vehicleId));
+            if (!Guid.TryParse(vehicleId, out var id))
+            {
+                return BadRequest("Invalid Vehicle Id");
+            }
+            var vehicle = await _mediator.Send(new GetVehicleByIdQuery { VehicleId = id });
 
             if (vehicle == null)
                 return NotFound("Vehicle Not Found");

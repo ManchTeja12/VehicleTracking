@@ -1,8 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent; //thread-safe collection class (thread a path of execution) multi threading
 
 namespace VehicleMangement.Services
 {
-    public class SubscriptionService
+    public class SubscriptionService //it is like memory storgae for active signalr subscriptions
     {
         // connectionId -> vehicleId
         private readonly ConcurrentDictionary<string, string> _subscriptions = new();
@@ -16,7 +16,8 @@ namespace VehicleMangement.Services
         // unsubscribe
         public void Unsubscribe(string connectionId, string vehicleId)
         {
-            if (_subscriptions.TryGetValue(connectionId, out var currentVehicle))
+            if (_subscriptions.TryGetValue(connectionId, out var currentVehicle)) // store vehicleid in currentvehicle
+                // out it is a keyword it returns actual value
             {
                 if (currentVehicle == vehicleId)
                 {

@@ -1,8 +1,9 @@
-﻿using Microsoft.VisualBasic;
+using MediatR;
+using Microsoft.VisualBasic;
 
 namespace VehicleMangement.Events
 {
-    public class VehicleCreatedEvent
+    public class VehicleCreatedEvent : INotification
     {
         public Guid VehicleId { get; set; }
         public string VehicleNumber { get; set; } = string.Empty;

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using VehicleMangement.Commands;
@@ -14,13 +14,13 @@ namespace VehicleMangement.Handlers
     {
         private readonly ReadDbContext _readcontext;
         private readonly EventRepository _repository;
-        private readonly VehicleProjectionHandler _projection;
-        public CreateVehicleHandler(EventRepository repository,ReadDbContext readcontext,VehicleProjectionHandler projection)
+        private readonly IMediator _mediator;
+        public CreateVehicleHandler(EventRepository repository,ReadDbContext readcontext,IMediator mediator)
         {
            
             _readcontext= readcontext;
             _repository= repository;
-            _projection= projection;
+            _mediator= mediator;
         }
         public async Task<VehicleDetails> Handle(CreateVehicleCommand command,CancellationToken ct)
         {
@@ -57,7 +57,7 @@ namespace VehicleMangement.Handlers
             };
 
             await _repository.SaveAsync(vehicleId,evt);
-            await _projection.Handle(evt);
+            await _mediator.Publish(evt, ct);
 
         
             return new VehicleDetails

@@ -1,8 +1,9 @@
-﻿using VehicleMangement.Enums;
+using MediatR;
+using VehicleMangement.Enums;
 
 namespace VehicleMangement.Events
 {
-    public class VehicleUpdateEvent
+    public class VehicleUpdateEvent : INotification
     {
         public Guid VehicleId { get; set; }
         public string? VehicleNumber { get; set; }

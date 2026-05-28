@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 using VehicleMangement.Data;
 using VehicleMangement.Enums;
 using VehicleMangement.Events;
@@ -6,7 +7,9 @@ using VehicleMangement.Models;
 
 namespace VehicleMangement.Handlers
 {
-    public class VehicleProjectionHandler
+    public class VehicleProjectionHandler : 
+        INotificationHandler<VehicleCreatedEvent>, 
+        INotificationHandler<VehicleUpdateEvent>
     {
         private readonly ReadDbContext _readcontext;
 
@@ -15,7 +18,7 @@ namespace VehicleMangement.Handlers
             _readcontext = readcontext;
         }
 
-        public async Task Handle(VehicleCreatedEvent e)
+        public async Task Handle(VehicleCreatedEvent e, CancellationToken cancellationToken)
         {
             var vehicle = new VehicleDetails
             {
@@ -41,7 +44,7 @@ namespace VehicleMangement.Handlers
             await _readcontext.SaveChangesAsync();
         }
 
-        public async Task Handle(VehicleUpdateEvent e)
+        public async Task Handle(VehicleUpdateEvent e, CancellationToken cancellationToken)
         {
             var vehicle = await _readcontext.Vehicles.FirstOrDefaultAsync(x => x.VehicleId == e.VehicleId);
 
