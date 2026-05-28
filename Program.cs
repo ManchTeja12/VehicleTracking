@@ -28,9 +28,7 @@ namespace VehicleMangement
             builder.Services.AddScoped<EventRepository>();
             builder.Services.AddScoped<CreateVehicleHandler>();
             builder.Services.AddScoped<UpdateVehicleHandler>();
-            builder.Services.AddSingleton<KafkaProducer>();
-            // builder.Services.AddHostedService<KafkaConsumer>();
-            // Program.cs
+    
             builder.Services.AddSingleton<SubscriptionService>(); 
 
             builder.Services.AddScoped<VehicleProjectionHandler>();

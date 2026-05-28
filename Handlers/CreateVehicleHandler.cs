@@ -59,14 +59,7 @@ namespace VehicleMangement.Handlers
             await _repository.SaveAsync(vehicleId,evt);
             await _projection.Handle(evt);
 
-            // This is for kafka
-
-            //await _producer.PublishAsync(KafkaTopic.VehicleEvents, new
-            //{
-            //    EventType = nameof(VehicleCreatedEvent),
-            //    Data = evt
-            //});
-
+        
             return new VehicleDetails
             {
                 VehicleId = vehicleId,
