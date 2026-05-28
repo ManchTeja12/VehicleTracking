@@ -29,7 +29,9 @@ namespace VehicleMangement
             builder.Services.AddScoped<CreateVehicleHandler>();
             builder.Services.AddScoped<UpdateVehicleHandler>();
             builder.Services.AddSingleton<KafkaProducer>();
-           // builder.Services.AddHostedService<KafkaConsumer>();
+            // builder.Services.AddHostedService<KafkaConsumer>();
+            // Program.cs
+            builder.Services.AddSingleton<SubscriptionService>(); 
 
             builder.Services.AddScoped<VehicleProjectionHandler>();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
