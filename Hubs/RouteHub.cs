@@ -20,7 +20,7 @@ namespace VehicleMangement.Hubs
         public override async Task OnConnectedAsync()
         {
             Console.WriteLine($"Client Connected: {Context.ConnectionId}");
-            await base.OnConnectedAsync();
+            await base.OnConnectedAsync(); //Call original SignalR connection logic from Hub class.
         }
 
         // Runs automatically when client disconnects
