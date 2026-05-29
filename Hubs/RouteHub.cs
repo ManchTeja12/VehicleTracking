@@ -24,7 +24,7 @@ namespace VehicleMangement.Hubs
         public override async Task OnConnectedAsync()
         {
             Console.WriteLine($"Client Connected : {Context.ConnectionId}");
-            await base.OnConnectedAsync();
+            await base.OnConnectedAsync(); // base refers to parent class 
         }
 
         // client disconnected
@@ -169,13 +169,13 @@ namespace VehicleMangement.Hubs
                             lng = point[0] // because osrm gives lng and lat so lng=0,lat=1
                         });
 
-                        await Task.Delay(2000);
+                        await Task.Delay(1000);
                     }
 
                     if (_subscriptionService.GetVehicle(connectionId) == vehicleId)
                     {
-                        await caller.SendAsync("RouteEnd");
-                    }
+                        await caller.SendAsync($"RouteEnd{vehicleId}");
+                    }           
                 }
                 catch (Exception ex)
                 {
@@ -187,8 +187,9 @@ namespace VehicleMangement.Hubs
         // send coordinate (allows client to report location update)
         public async Task SendCoordinate(string vehicleId, double lat, double lng)
         {
+            Console.WriteLine($"Sending Current Coordinate{lat}-{lng}");
             try
-            {
+            { 
                 var connectionId = Context.ConnectionId;
                 if (!_subscriptionService.IsSubscribed(connectionId, vehicleId))
                 {

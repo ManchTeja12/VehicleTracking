@@ -43,6 +43,10 @@ namespace VehicleMangement.Handlers
                 Source = command.Source ?? vehicle.Source,
 
                 Destination = command.Destination ?? vehicle.Destination,
+                SourceLat = command.SourceLat,
+                SourceLng = command.SourceLng,
+                DestLat = command.DestLat,
+                DestLng = command.DestLng,
 
                 UpdatedAt = DateTime.UtcNow
             };

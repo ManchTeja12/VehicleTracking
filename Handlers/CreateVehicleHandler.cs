@@ -24,13 +24,40 @@ namespace VehicleMangement.Handlers
         }
         public async Task<VehicleDetails> Handle(CreateVehicleCommand command,CancellationToken ct)
         {
+
+            if (string.IsNullOrWhiteSpace(command.DriverName))
+            {
+                throw new Exception("Driver Name is required");
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(
+                command.DriverName,
+                @"^[a-zA-Z\s]+$"))
+            {
+                throw new Exception("Driver Name should contain only letters");
+            }
+
+            if (command.DriverName.Length < 3)
+            {
+                throw new Exception("Driver Name should be at least 3 characters");
+            }
+
+            if (string.IsNullOrWhiteSpace(command.LoadMaterial))
+            {
+                throw new Exception("Load Material is required");
+            }
+
+            if (command.LoadMaterial.Length < 3)
+            {
+                throw new Exception("Load Material should be at least 3 characters");
+            }
             var exits=await _readcontext.Vehicles.AnyAsync(x=>x.VehicleNumber==command.VehicleNumber,ct);
             if(exits)
             {
                 throw new InvalidOperationException("VehicleNumber already exists");
             }
             var today=DateTime.UtcNow.ToString("yyyyMMdd");
-            var lastship = await _readcontext.Vehicles.MaxAsync(v => (string?)v.ShipmentNumber, ct);
+            var lastship = await _readcontext.Vehicles.Where(v => v.ShipmentNumber.StartsWith($"SHIP-{today}-")).MaxAsync(v => (string?)v.ShipmentNumber, ct);
             int nextseq = lastship == null ? 1 : int.Parse(lastship.Split('-')[2]) + 1;
             var shipmentNumber=$"SHIP-{today}-{nextseq:D3}";
             var vehicleId = Guid.NewGuid();

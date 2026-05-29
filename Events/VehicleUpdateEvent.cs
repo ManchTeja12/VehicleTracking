@@ -13,5 +13,10 @@ namespace VehicleMangement.Events
         public string? Source { get; set; }
         public string? Destination { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public double SourceLat { get; set; }
+        public double SourceLng { get; set; }
+        public double DestLat { get; set; }
+        public double DestLng { get; set; }
     }
 }
