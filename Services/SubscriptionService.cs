@@ -6,6 +6,9 @@ namespace VehicleMangement.Services
     {
         // connectionId -> vehicleId
         private readonly ConcurrentDictionary<string, string> _subscriptions = new();
+        //One ConnectionId -> One VehicleId
+
+        //one connectionid-> multiplevehiclesid -> ConcurrentDictionary<string, HashSet<string>>
 
         // subscribe
         public void Subscribe(string connectionId,string vehicleId)
