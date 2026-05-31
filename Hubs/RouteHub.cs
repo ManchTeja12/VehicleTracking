@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 using VehicleMangement.Commands;
 using VehicleMangement.Queries;
 using VehicleMangement.Services;
@@ -13,6 +14,7 @@ namespace VehicleMangement.Hubs
 
         private readonly IMediator _mediator;
         private readonly SubscriptionService _subscriptionService;
+        private static readonly ConcurrentDictionary<string, CancellationTokenSource> _tripTokens = new();
 
         public RouteHub(IMediator mediator, SubscriptionService subscriptionService)
         {
@@ -36,6 +38,11 @@ namespace VehicleMangement.Hubs
             if (oldVehicle != null)
             {
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId,oldVehicle);
+            }
+            if (_tripTokens.TryRemove(Context.ConnectionId, out var cts))
+            {
+                cts.Cancel();
+                cts.Dispose();
             }
 
             _subscriptionService.RemoveConnection( Context.ConnectionId);
@@ -141,6 +148,16 @@ namespace VehicleMangement.Hubs
                 await Clients.Caller.SendAsync("Error", "No route found");
                 return;
             }
+            if (_tripTokens.TryRemove(connectionId, out var existingCts))
+            {
+                existingCts.Cancel();
+                existingCts.Dispose();
+            }
+
+            // ── NEW: create token for this trip ──
+            var cts = new CancellationTokenSource();
+            _tripTokens[connectionId] = cts;
+            var token = cts.Token;
 
             // Capture caller before Task.Run
             var caller = Clients.Caller; // storing refernce to current client
@@ -150,38 +167,54 @@ namespace VehicleMangement.Hubs
             {
                 try
                 {
-                    await caller.SendAsync("RouteStart", coordinates.Count);
+                    await caller.SendAsync("RouteStart", coordinates.Count,token);
+
                     foreach (var point in coordinates)
                     {
-                        // Stop if vehicle switched
-                        if (_subscriptionService.GetVehicle(connectionId) != vehicleId)
-                        {
-                            Console.WriteLine($"Vehicle switched, stopping trip for : {vehicleId}");
-                            break;
-                        }
-
-                        Console.WriteLine($"Lat : {point[1]} Lng : {point[0]}");
+                        token.ThrowIfCancellationRequested(); // ← replaces your if/break check
 
                         await caller.SendAsync("RouteCoordinate", new
                         {
                             vehicleId = vehicleId,
                             lat = point[1],
-                            lng = point[0] // because osrm gives lng and lat so lng=0,lat=1
-                        });
+                            lng = point[0]
+                        }, token); // ← add token
 
-                        await Task.Delay(1000);
+                        await Task.Delay(2000, token); // ← add token (cancels mid-wait too)
                     }
 
-                    if (_subscriptionService.GetVehicle(connectionId) == vehicleId)
-                    {
-                        await caller.SendAsync($"RouteEnd{vehicleId}");
-                    }           
+                    await caller.SendAsync("RouteEnd", cancellationToken: token); // ← add token
+                }
+                catch (OperationCanceledException)
+                {
+                    Console.WriteLine($"Trip cancelled for: {vehicleId}"); // ← replaces your vehicle check
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Trip error : {ex.Message}");
+                    Console.WriteLine($"Trip error: {ex.Message}");
                 }
-            });
+                finally
+                {
+                    // ── NEW: clean up the token after trip ends ──
+                    if (_tripTokens.TryRemove(connectionId, out var used))
+                        used.Dispose();
+                }
+            }, token);
+        }
+
+        public async Task SwitchVehicle(string newVehicleId)
+        {
+            var connectionId = Context.ConnectionId;
+            var oldVehicle =_subscriptionService.GetVehicle(connectionId);
+
+            if (!string.IsNullOrEmpty(oldVehicle))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId,oldVehicle);
+            }
+
+            _subscriptionService.Subscribe(connectionId, newVehicleId);
+            await Groups.AddToGroupAsync(connectionId, newVehicleId);
+            await StartTrip(newVehicleId);
         }
 
         // send coordinate (allows client to report location update)
