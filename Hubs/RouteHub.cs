@@ -9,7 +9,7 @@ using VehicleMangement.Services;
 
 namespace VehicleMangement.Hubs
 {
-    public class RouteHub : Hub
+    public class RouteHub : Hub        
     {
 
         private readonly IMediator _mediator;
@@ -92,7 +92,11 @@ namespace VehicleMangement.Hubs
                 _subscriptionService.Unsubscribe(Context.ConnectionId,vehicleId);
 
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId,vehicleId);
-
+                if (_tripTokens.TryRemove(Context.ConnectionId, out var cts))
+                {
+                    cts.Cancel();
+                    cts.Dispose();
+                }
                 Console.WriteLine($"{Context.ConnectionId} Left {vehicleId}");
 
                 await Clients.Caller.SendAsync("Unsubscribed",vehicleId);
@@ -205,11 +209,11 @@ namespace VehicleMangement.Hubs
         public async Task SwitchVehicle(string newVehicleId)
         {
             var connectionId = Context.ConnectionId;
-            var oldVehicle =_subscriptionService.GetVehicle(connectionId);
+            var oldVehicle = _subscriptionService.GetVehicle(connectionId);
 
             if (!string.IsNullOrEmpty(oldVehicle))
             {
-                await Groups.RemoveFromGroupAsync(connectionId,oldVehicle);
+                await Groups.RemoveFromGroupAsync(connectionId, oldVehicle);
             }
 
             _subscriptionService.Subscribe(connectionId, newVehicleId);
